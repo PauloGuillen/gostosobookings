@@ -1,0 +1,40 @@
+### Create a User
+POST http://localhost:8080/v1/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "securepassword"
+}
+
+### Get User by ID
+GET http://localhost:8080/v1/users/1
+Authorization: Bearer <your-jwt-token>
+
+### Update User
+PUT http://localhost:8080/v1/users/1
+Content-Type: application/json
+Authorization: Bearer <your-jwt-token>
+
+{
+  "name": "John Updated",
+  "email": "john.updated@example.com"
+}
+
+### Delete User
+DELETE http://localhost:8080/v1/users/1
+Authorization: Bearer <your-jwt-token>
+
+### Login
+POST http://localhost:8080/v1/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "securepassword"
+}
+
+### Logout
+POST http://localhost:8080/v1/logout
+Authorization: Bearer <your-jwt-token>

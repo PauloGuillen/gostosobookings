@@ -1,6 +1,6 @@
 services:
   gostosobookings-api:
-    image: golang:1.19
+    image: golang:1.22
     container_name: gostosobookings-api
     build:
       context: .
@@ -12,7 +12,7 @@ services:
       - DB_PORT=5432
       - DB_USER=gostoso_user
       - DB_PASSWORD=gostoso_password
-      - DB_NAME=gostoso_db
+      - DB_NAME=gostosobookings_db
     depends_on:
       - postgres
     networks:
@@ -25,14 +25,14 @@ services:
     environment:
       - POSTGRES_USER=gostoso_user
       - POSTGRES_PASSWORD=gostoso_password
-      - POSTGRES_DB=gostoso_db
+      - POSTGRES_DB=gostosobookings_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - gostoso-network
     restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "gostoso_user", "-d", "gostoso_db"]
+      test: ["CMD", "pg_isready", "-U", "gostoso_user", "-d", "gostosobookings_db"]
       interval: 10s
       retries: 5
       timeout: 5s
