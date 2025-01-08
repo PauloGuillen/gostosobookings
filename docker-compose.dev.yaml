@@ -1,0 +1,51 @@
+services:
+  gostosobookings-api:
+    image: golang:1.22
+    container_name: gostosobookings-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=gostoso_user
+      - DB_PASSWORD=gostoso_password
+      - DB_NAME=gostosobookings_db
+    volumes:
+      - .:/app
+      - /go/pkg/mod:/go/pkg/mod # Cache de módulos do Go
+      - /go/bin:/go/bin # Cache de binários gerados
+    working_dir: /app # Define /app como diretório de trabalho no container
+    depends_on:
+      - postgres
+    networks:
+      - gostoso-network
+    restart: always
+
+  postgres:
+    image: postgres:15.2
+    container_name: gostosobookings-db
+    environment:
+      - POSTGRES_USER=gostoso_user
+      - POSTGRES_PASSWORD=gostoso_password
+      - POSTGRES_DB=gostosobookings_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gostoso-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "gostoso_user", "-d", "gostosobookings_db"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 30s
+
+volumes:
+  postgres_data:
+
+networks:
+  gostoso-network:
+    driver: bridge
