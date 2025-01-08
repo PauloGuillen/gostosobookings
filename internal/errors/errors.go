@@ -4,7 +4,7 @@ import "errors"
 
 // Custom errors for User repository
 var (
-	ErrEmailAlreadyExists = errors.New("email is already in use XXX")
+	ErrEmailAlreadyExists = errors.New("email is already in use")
 	ErrInvalidData        = errors.New("invalid user data")
 	ErrDatabase           = errors.New("database error")
 	ErrPasswordHashing    = errors.New("error hashing password")
