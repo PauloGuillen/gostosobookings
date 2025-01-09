@@ -1,3 +1,4 @@
+// router/router.go
 package router
 
 import (
@@ -6,17 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userService service.UserService) *gin.Engine {
+func SetupRouter(userService service.UserService, authService service.AuthService) *gin.Engine {
 	r := gin.Default()
 
 	v1 := r.Group("/v1")
 	{
-		// Criar uma instância do controller com o userService
 		userController := controller.NewUserController(userService)
+		authController := controller.NewAuthController(authService)
 
-		// Usar a função CreateUser do controller
 		v1.POST("/users", userController.CreateUser)
-		// Adicionar outros endpoints...
+		v1.POST("/login", authController.Login)
 	}
 
 	return r

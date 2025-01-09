@@ -1,3 +1,18 @@
+###
+POST http://localhost:8080/v1/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "securepasswor"
+}
+
+> {%
+set $token = response.body.access_token
+%}
+
+
+
 ### Create a User
 POST http://localhost:8080/v1/users
 Content-Type: application/json

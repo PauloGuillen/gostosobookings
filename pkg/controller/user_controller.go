@@ -54,7 +54,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	}
 
 	// Proceed with user creation if validation passes
-	user, err := c.userService.CreateUser(ctx, userRequest)
+	user, err := c.userService.CreateUser(ctx.Request.Context(), userRequest)
 	if err != nil {
 		handleError(ctx, err)
 		return

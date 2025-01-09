@@ -1,3 +1,4 @@
+// main.go
 package main
 
 import (
@@ -16,20 +17,20 @@ func main() {
 		log.Fatalf("Error initializing application: %v", err)
 	}
 
-	// Start the API server
-	startServer()
-
 	// Ensure that the database connection will be closed properly at the end
 	defer config.CloseDB()
+
+	// Start the API server
+	startServer()
 }
 
 // initializeApp loads environment variables and initializes the database connection.
 func initializeApp() error {
 	// Load environment variables from .env file or system environment
-	config.LoadEnv() // Calling LoadEnv() to load .env variables
+	config.LoadEnv()
 
 	// Initialize the database connection
-	if err := config.LoadDatabaseConfig(); err != nil { // Renamed to LoadDatabaseConfig
+	if err := config.LoadDatabaseConfig(); err != nil {
 		return err
 	}
 
@@ -43,11 +44,14 @@ func startServer() {
 	userRepository := repository.NewUserRepository()
 	userService := service.NewUserService(userRepository)
 
-	// Set up the router with userService
-	r := router.SetupRouter(*userService)
+	// Initialize the Auth service
+	authService := service.NewAuthService(userRepository)
+
+	// Set up the router with userService and authService
+	r := router.SetupRouter(*userService, *authService)
 
 	// Retrieve and log the server port
-	port := config.GetEnv("SERVER_PORT", "8080") // Use GetEnv to fetch the port
+	port := config.GetEnv("SERVER_PORT", "8080")
 	log.Printf("Starting GostosoBookings API on port %s...", port)
 
 	// Start the server

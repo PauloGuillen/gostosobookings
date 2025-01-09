@@ -10,4 +10,5 @@ var (
 	ErrPasswordHashing    = errors.New("error hashing password")
 	ErrSonyflakeInit      = errors.New("failed to initialize Sonyflake")
 	ErrSonyflakeNextID    = errors.New("error generating Sonyflake ID")
+	ErrUserNotFound       = errors.New("user not found")
 )
