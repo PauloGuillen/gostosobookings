@@ -6,15 +6,25 @@ import (
 
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
 	"github.com/PauloGuillen/gostosobookings/internal/user/dto"
-	"github.com/PauloGuillen/gostosobookings/internal/user/repository"
+	"github.com/PauloGuillen/gostosobookings/internal/user/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
-func CreateUser(c *gin.Context) {
+type UserController struct {
+	userService service.UserService
+}
+
+// NewUserController creates a new instance of UserController.
+func NewUserController(userService service.UserService) *UserController {
+	return &UserController{userService: userService}
+}
+
+// CreateUser handles the creation of a new user.
+func (c *UserController) CreateUser(ctx *gin.Context) {
 	var userRequest dto.CreateUserRequest
 	// Bind JSON to userRequest and check for errors
-	if err := c.ShouldBindJSON(&userRequest); err != nil {
+	if err := ctx.ShouldBindJSON(&userRequest); err != nil {
 		// Map for field-specific errors
 		fieldErrors := make(map[string]string)
 
@@ -35,7 +45,7 @@ func CreateUser(c *gin.Context) {
 
 		// Return 422 status with field-specific errors
 		if len(fieldErrors) > 0 {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 				"message": "Validation error",
 				"errors":  fieldErrors,
 			})
@@ -44,17 +54,17 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// Proceed with user creation if validation passes
-	user, err := repository.CreateUser(userRequest)
+	user, err := c.userService.CreateUser(ctx, userRequest)
 	if err != nil {
-		handleError(c, err)
+		handleError(ctx, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"user": user})
+	ctx.JSON(http.StatusCreated, gin.H{"user": user})
 }
 
 // handleError is a helper function to handle different types of errors and send the appropriate HTTP response
-func handleError(c *gin.Context, err error) {
+func handleError(ctx *gin.Context, err error) {
 	var statusCode int
 	var errorMessage string
 
@@ -70,5 +80,5 @@ func handleError(c *gin.Context, err error) {
 		errorMessage = "Unknown error"
 	}
 
-	c.JSON(statusCode, gin.H{"error": errorMessage})
+	ctx.JSON(statusCode, gin.H{"error": errorMessage})
 }

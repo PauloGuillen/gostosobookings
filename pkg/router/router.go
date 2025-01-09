@@ -1,21 +1,22 @@
 package router
 
 import (
+	"github.com/PauloGuillen/gostosobookings/internal/user/service"
 	"github.com/PauloGuillen/gostosobookings/pkg/controller"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(userService service.UserService) *gin.Engine {
 	r := gin.Default()
 
 	v1 := r.Group("/v1")
 	{
-		v1.POST("/users", controller.CreateUser)
-		// v1.GET("/users/:id", controller.GetUserByID)
-		// v1.PUT("/users/:id", controller.UpdateUser)
-		// v1.DELETE("/users/:id", controller.DeleteUser)
-		// v1.POST("/login", controller.Login)
-		// v1.POST("/logout", controller.Logout)
+		// Criar uma instância do controller com o userService
+		userController := controller.NewUserController(userService)
+
+		// Usar a função CreateUser do controller
+		v1.POST("/users", userController.CreateUser)
+		// Adicionar outros endpoints...
 	}
 
 	return r
