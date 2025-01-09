@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/PauloGuillen/gostosobookings/internal/config"
+	"github.com/PauloGuillen/gostosobookings/config"
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
 	"github.com/PauloGuillen/gostosobookings/internal/user/model"
 )

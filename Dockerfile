@@ -18,8 +18,10 @@ FROM golang:1.22
 
 WORKDIR /app
 
-# Install PostgreSQL client to use pg_isready
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+# Install PostgreSQL client and curl to use pg_isready
+RUN apt-get update && \
+    apt-get install -y postgresql-client curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the binary and the initialization script
 COPY --from=build /app/gostosobookings-api /app/gostosobookings-api
@@ -37,4 +39,7 @@ ENV DB_HOST=postgres \
     SERVER_PORT=8080
 
 # Set the initialization script as the entrypoint
-ENTRYPOINT ["/app/wait-for-db.sh"]
+ENTRYPOINT ["/app/wait-for-db.sh", "&&", "/app/gostosobookings-api"]
+
+# Expose the application port
+EXPOSE 8080
