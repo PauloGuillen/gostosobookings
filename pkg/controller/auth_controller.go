@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/PauloGuillen/gostosobookings/internal/errors"
 	"github.com/PauloGuillen/gostosobookings/internal/user/service"
 	"github.com/gin-gonic/gin"
 )
@@ -25,13 +26,13 @@ func (a *AuthController) Login(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&loginData); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		errors.HandleError(ctx, err)
 		return
 	}
 
 	token, err := a.authService.Login(ctx.Request.Context(), loginData.Email, loginData.Password)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		errors.HandleError(ctx, err)
 		return
 	}
 

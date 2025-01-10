@@ -56,29 +56,9 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	// Proceed with user creation if validation passes
 	user, err := c.userService.CreateUser(ctx.Request.Context(), userRequest)
 	if err != nil {
-		handleError(ctx, err)
+		errors.HandleError(ctx, err)
 		return
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"user": user})
-}
-
-// handleError is a helper function to handle different types of errors and send the appropriate HTTP response
-func handleError(ctx *gin.Context, err error) {
-	var statusCode int
-	var errorMessage string
-
-	switch err {
-	case errors.ErrEmailAlreadyExists:
-		statusCode = http.StatusConflict
-		errorMessage = err.Error()
-	case errors.ErrPasswordHashing, errors.ErrSonyflakeInit, errors.ErrSonyflakeNextID, errors.ErrDatabase:
-		statusCode = http.StatusInternalServerError
-		errorMessage = err.Error()
-	default:
-		statusCode = http.StatusInternalServerError
-		errorMessage = "Unknown error"
-	}
-
-	ctx.JSON(statusCode, gin.H{"error": errorMessage})
 }

@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	stdErrors "errors"
 	"strings"
 
 	"github.com/PauloGuillen/gostosobookings/config"
@@ -41,16 +42,14 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 }
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
-	sql := `SELECT id, name, email, password_hash, role, created_at, updated_at
+	strSql := `SELECT id, name, email, password_hash, role, created_at, updated_at
 	FROM users WHERE email = $1`
 
-	fmt.Println("FindByEmail sql:", sql)
-
 	user := &model.User{}
-	err := config.DB.QueryRow(ctx, sql, email).
+	err := config.DB.QueryRow(ctx, strSql, email).
 		Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if stdErrors.Is(err, sql.ErrNoRows) {
 			return nil, errors.ErrUserNotFound
 		}
 		return nil, errors.ErrDatabase

@@ -1,42 +1,52 @@
-package controller
+package service
 
 import (
-	"net/http"
+	"context"
+	stdErrors "errors"
+	"fmt"
 
-	"github.com/PauloGuillen/gostosobookings/internal/user/service"
-	"github.com/gin-gonic/gin"
+	"github.com/PauloGuillen/gostosobookings/internal/errors"
+	"github.com/PauloGuillen/gostosobookings/internal/user/repository"
+	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// AuthController handles authentication
-type AuthController struct {
-	authService service.AuthService
+// AuthService provides authentication operations.
+type AuthService struct {
+	repo repository.UserRepository
 }
 
-// NewAuthController creates a new instance of AuthController
-func NewAuthController(authService service.AuthService) *AuthController {
-	return &AuthController{authService: authService}
+// NewAuthService creates a new AuthService with the necessary dependencies.
+func NewAuthService(repo repository.UserRepository) *AuthService {
+	return &AuthService{repo: repo}
 }
 
-// Login authenticates a user and returns a JWT
-func (a *AuthController) Login(ctx *gin.Context) {
-	var loginData struct {
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
-	}
-
-	// Bind input data
-	if err := ctx.ShouldBindJSON(&loginData); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Authenticate user
-	token, err := a.authService.Login(ctx.Request.Context(), loginData.Email, loginData.Password)
+// Login authenticates a user by email and password.
+func (s *AuthService) Login(ctx context.Context, email, password string) (string, error) {
+	// Fetch user by email
+	user, err := s.repo.FindByEmail(ctx, email)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
+		fmt.Println("err:", err)
+		if stdErrors.Is(err, errors.ErrUserNotFound) {
+			return "", errors.ErrUserNotFound
+		}
+		return "", errors.ErrDatabase
 	}
 
-	// Return JWT
-	ctx.JSON(http.StatusOK, gin.H{"token": token})
+	// Verify password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return "", errors.ErrInvalidCredentials
+	}
+
+	// Generate JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"email":   user.Email,
+	})
+	tokenString, err := token.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		return "", errors.ErrTokenGeneration
+	}
+
+	return tokenString, nil
 }
