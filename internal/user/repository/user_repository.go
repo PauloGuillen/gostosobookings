@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	stdErrors "errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/PauloGuillen/gostosobookings/config"
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
@@ -15,6 +17,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	FindByEmail(ctx context.Context, email string) (*model.User, error)
+	CreateRefreshToken(ctx context.Context, userID int64, expiresAt time.Time) error
 }
 
 // userRepository is the concrete implementation of UserRepository.
@@ -56,4 +59,22 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	}
 
 	return user, nil
+}
+
+// CreateRefreshToken creates a new refresh token for the user.
+func (r *userRepository) CreateRefreshToken(ctx context.Context, userID int64, expiresAt time.Time) error {
+	sql := `DELETE FROM refresh_tokens where user_id = $1`
+	_, err := config.DB.Exec(ctx, sql, userID)
+	if err != nil {
+		fmt.Println("err:", err)
+		return errors.ErrDatabase
+	}
+
+	sql = `INSERT INTO refresh_tokens (user_id, expires_at) VALUES ($1, $2)`
+
+	_, err = config.DB.Exec(ctx, sql, userID, expiresAt)
+	if err != nil {
+		return errors.ErrDatabase
+	}
+	return nil
 }
