@@ -18,6 +18,10 @@ var (
 	ErrUserNotFound       = errors.New("user not found")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrTokenGeneration    = errors.New("error generating token")
+	ErrInvalidToken       = errors.New("invalid token")
+	ErrInvalidTokenClaims = errors.New("invalid token claims")
+	ErrTokenParsing       = errors.New("error parsing token")
+	ErrTokenRequired      = errors.New("token is required")
 )
 
 // HandleError is a centralized error handler for controllers
@@ -29,7 +33,7 @@ func HandleError(ctx *gin.Context, err error) {
 	case ErrEmailAlreadyExists:
 		statusCode = http.StatusConflict
 		errorMessage = err.Error()
-	case ErrInvalidCredentials, ErrUserNotFound:
+	case ErrInvalidCredentials, ErrUserNotFound, ErrInvalidToken, ErrInvalidTokenClaims, ErrTokenParsing, ErrTokenRequired:
 		statusCode = http.StatusUnauthorized
 		errorMessage = err.Error()
 	case ErrDatabase, ErrPasswordHashing, ErrSonyflakeInit, ErrSonyflakeNextID, ErrTokenGeneration:

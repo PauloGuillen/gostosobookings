@@ -17,6 +17,7 @@ func SetupRouter(userService service.UserService, authService service.AuthServic
 
 		v1.POST("/users", userController.CreateUser)
 		v1.POST("/login", authController.Login)
+		v1.POST("/logout", authController.Logout)
 	}
 
 	return r

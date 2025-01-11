@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
 	"github.com/PauloGuillen/gostosobookings/internal/user/service"
@@ -37,4 +38,25 @@ func (a *AuthController) Login(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (a *AuthController) Logout(ctx *gin.Context) {
+	token := ctx.GetHeader("Authorization")
+	if token == "" {
+		errors.HandleError(ctx, errors.ErrTokenRequired)
+		return
+	}
+
+	// Split by space and return the last part (token).
+	parts := strings.Fields(token)
+	if len(parts) > 1 {
+		token = parts[1] // Returns the token part after "Bearer" or any prefix.
+	}
+
+	if err := a.authService.Logout(ctx.Request.Context(), token); err != nil {
+		errors.HandleError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
 }

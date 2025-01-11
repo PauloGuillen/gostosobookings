@@ -1,4 +1,4 @@
-###
+### Login
 POST http://localhost:8080/v1/login
 Content-Type: application/json
 
@@ -7,11 +7,11 @@ Content-Type: application/json
   "password": "securepassword"
 }
 
-> {%
-set $token = response.body.access_token
-%}
+> {% client.global.set("token", response.body.access_token) %}
 
-
+### Logout
+POST http://localhost:8080/v1/logout
+Authorization: Bearer {{token}}
 
 ### Create a User
 POST http://localhost:8080/v1/users
@@ -25,12 +25,10 @@ Content-Type: application/json
 
 ### Get User by ID
 GET http://localhost:8080/v1/users/1
-Authorization: Bearer <your-jwt-token>
 
 ### Update User
 PUT http://localhost:8080/v1/users/1
 Content-Type: application/json
-Authorization: Bearer <your-jwt-token>
 
 {
   "name": "John Updated",
@@ -39,17 +37,3 @@ Authorization: Bearer <your-jwt-token>
 
 ### Delete User
 DELETE http://localhost:8080/v1/users/1
-Authorization: Bearer <your-jwt-token>
-
-### Login
-POST http://localhost:8080/v1/login
-Content-Type: application/json
-
-{
-  "email": "john.doe@example.com",
-  "password": "securepassword"
-}
-
-### Logout
-POST http://localhost:8080/v1/logout
-Authorization: Bearer <your-jwt-token>

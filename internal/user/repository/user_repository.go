@@ -18,6 +18,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	FindByEmail(ctx context.Context, email string) (*model.User, error)
 	CreateRefreshToken(ctx context.Context, userID int64, expiresAt time.Time) error
+	DeleteRefreshToken(ctx context.Context, userID int64) error
 }
 
 // userRepository is the concrete implementation of UserRepository.
@@ -76,5 +77,18 @@ func (r *userRepository) CreateRefreshToken(ctx context.Context, userID int64, e
 	if err != nil {
 		return errors.ErrDatabase
 	}
+	return nil
+}
+
+// DeleteRefreshToken deletes the refresh token for the user.
+func (r *userRepository) DeleteRefreshToken(ctx context.Context, userID int64) error {
+	fmt.Println("userID:", userID)
+	sql := "DELETE FROM refresh_tokens WHERE user_id = $1"
+	_, err := config.DB.Exec(ctx, sql, userID)
+	if err != nil {
+		fmt.Println("err:", err)
+		return errors.ErrDatabase
+	}
+
 	return nil
 }
