@@ -9,9 +9,10 @@ Content-Type: application/json
 
 > {% client.global.set("token", response.body.access_token) %}
 
+
 ### Logout
 POST http://localhost:8080/v1/logout
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY2MzIxMDcsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.JNN6-z0K32o-n172XsskSuiRJmWKKtH-EZVaYEVBOQQ
 
 ### Create a User
 POST http://localhost:8080/v1/users
@@ -29,6 +30,7 @@ GET http://localhost:8080/v1/users/1
 ### Update User
 PUT http://localhost:8080/v1/users/1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4MDA5MTYsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.Dwavc7-CupzOjOI0JHiGHyzU4HEN4IAQftqn19Hc6ew
 
 {
   "name": "John Updated",

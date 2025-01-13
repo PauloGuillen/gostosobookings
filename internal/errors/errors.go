@@ -22,6 +22,8 @@ var (
 	ErrInvalidTokenClaims = errors.New("invalid token claims")
 	ErrTokenParsing       = errors.New("error parsing token")
 	ErrTokenRequired      = errors.New("token is required")
+	ErrTokenExpired       = errors.New("token has expired")
+	ErrTokenNotFound      = errors.New("token not found")
 )
 
 // HandleError is a centralized error handler for controllers

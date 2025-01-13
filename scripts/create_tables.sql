@@ -11,7 +11,7 @@ CREATE TABLE users (
 CREATE TABLE refresh_tokens (
     id SERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
+    expires_at BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

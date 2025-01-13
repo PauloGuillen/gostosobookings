@@ -62,3 +62,8 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"user": user})
 }
+
+// UpdateUser handles the update of an existing user.
+func (c *UserController) UpdateUser(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"message": "UpdateUser"})
+}

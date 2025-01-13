@@ -3,13 +3,14 @@ package repository
 import (
 	"context"
 	"database/sql"
+	stdSql "database/sql"
 	stdErrors "errors"
-	"fmt"
+
 	"strings"
-	"time"
 
 	"github.com/PauloGuillen/gostosobookings/config"
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
+	"github.com/PauloGuillen/gostosobookings/internal/user/dto"
 	"github.com/PauloGuillen/gostosobookings/internal/user/model"
 )
 
@@ -17,8 +18,9 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	FindByEmail(ctx context.Context, email string) (*model.User, error)
-	CreateRefreshToken(ctx context.Context, userID int64, expiresAt time.Time) error
+	CreateRefreshToken(ctx context.Context, userID int64, expiresAt int64) error
 	DeleteRefreshToken(ctx context.Context, userID int64) error
+	FindRefreshToken(ctx context.Context, userID int64) (dto.AccessTokenDetails, error)
 }
 
 // userRepository is the concrete implementation of UserRepository.
@@ -63,11 +65,10 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 }
 
 // CreateRefreshToken creates a new refresh token for the user.
-func (r *userRepository) CreateRefreshToken(ctx context.Context, userID int64, expiresAt time.Time) error {
+func (r *userRepository) CreateRefreshToken(ctx context.Context, userID int64, expiresAt int64) error {
 	sql := `DELETE FROM refresh_tokens where user_id = $1`
 	_, err := config.DB.Exec(ctx, sql, userID)
 	if err != nil {
-		fmt.Println("err:", err)
 		return errors.ErrDatabase
 	}
 
@@ -82,13 +83,26 @@ func (r *userRepository) CreateRefreshToken(ctx context.Context, userID int64, e
 
 // DeleteRefreshToken deletes the refresh token for the user.
 func (r *userRepository) DeleteRefreshToken(ctx context.Context, userID int64) error {
-	fmt.Println("userID:", userID)
 	sql := "DELETE FROM refresh_tokens WHERE user_id = $1"
 	_, err := config.DB.Exec(ctx, sql, userID)
 	if err != nil {
-		fmt.Println("err:", err)
 		return errors.ErrDatabase
 	}
 
 	return nil
+}
+
+// FindRefreshToken retrieves the refresh token for the user.
+func (r *userRepository) FindRefreshToken(ctx context.Context, userID int64) (dto.AccessTokenDetails, error) {
+	sql := `SELECT user_id, expires_at FROM refresh_tokens WHERE user_id = $1`
+	tokenDetails := dto.AccessTokenDetails{}
+	err := config.DB.QueryRow(ctx, sql, userID).Scan(&tokenDetails.UserID, &tokenDetails.ExpiresAt)
+	if err != nil {
+		if stdErrors.Is(err, stdSql.ErrNoRows) {
+			return dto.AccessTokenDetails{}, errors.ErrTokenNotFound
+		}
+		return dto.AccessTokenDetails{}, errors.ErrDatabase
+	}
+
+	return tokenDetails, nil
 }
