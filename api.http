@@ -24,18 +24,21 @@ Content-Type: application/json
   "password": "securepassword"
 }
 
-### Get User by ID
-GET http://localhost:8080/v1/users/1
+
 
 ### Update User
 PUT http://localhost:8080/v1/users/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4MDA5MTYsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.Dwavc7-CupzOjOI0JHiGHyzU4HEN4IAQftqn19Hc6ew
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4ODgzNjYsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.bEei9vkBHJoE30dmErbZeyHx0NI4QWNmk0WafC8EqHo
 
 {
   "name": "John Updated",
   "email": "john.updated@example.com"
 }
 
-### Delete User
-DELETE http://localhost:8080/v1/users/1
+
+### Create a property
+POST http://localhost:8080/v1/property
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4ODgzNjYsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.bEei9vkBHJoE30dmErbZeyHx0NI4QWNmk0WafC8EqHo
+
