@@ -7,6 +7,9 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE users
+ADD CONSTRAINT valid_roles CHECK (role IN ('customer', 'admin', 'business_admin', 'business_manager'));
+
 
 CREATE TABLE refresh_tokens (
     id SERIAL PRIMARY KEY,

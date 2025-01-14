@@ -11,6 +11,7 @@ import (
 	"github.com/PauloGuillen/gostosobookings/internal/errors"
 	"github.com/PauloGuillen/gostosobookings/internal/user/dto"
 	"github.com/PauloGuillen/gostosobookings/internal/user/repository"
+	"github.com/PauloGuillen/gostosobookings/pkg/util/auth"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -126,7 +127,7 @@ func (s *AuthService) GetTokenDetails(ctx context.Context, tokenString string) (
 
 	// Extract role
 	role, ok := claims["role"].(string)
-	if !ok {
+	if !ok || !auth.IsValidRole(role) {
 		return dto.AccessTokenDetails{}, errors.ErrInvalidTokenClaims
 	}
 
@@ -181,7 +182,7 @@ func (s *AuthService) RevalidateToken(ctx context.Context, tokenString string) (
 
 	// Extract and validate role from claims.
 	role, ok := claims["role"].(string)
-	if !ok {
+	if !ok || !auth.IsValidRole(role) {
 		return "", errors.ErrInvalidTokenClaims
 	}
 
