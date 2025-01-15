@@ -19,8 +19,8 @@ POST http://localhost:8080/v1/users
 Content-Type: application/json
 
 {
-  "name": "Luisa Brune",
-  "email": "luisa.brune3@example.com",
+  "name": "Isaac Newton",
+  "email": "isaac.newton@email.com",
   "password": "securepassword"
 }
 
@@ -29,7 +29,7 @@ Content-Type: application/json
 ### Update User
 PUT http://localhost:8080/v1/users/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4ODgzNjYsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.bEei9vkBHJoE30dmErbZeyHx0NI4QWNmk0WafC8EqHo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY5NDk5NDcsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.xo6AM59D11KVbBaAlvoiF69VKNrlvN7Cds5rWArMhCU
 
 {
   "name": "John Updated",
@@ -40,5 +40,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY4ODgzN
 ### Create a property
 POST http://localhost:8080/v1/property
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY5MDc2NDEsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.0OZiSu1ZUx7Gy7570fiWQJsFGERqZk8VIihgXNwVu6Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY5NTY1NDMsInJvbGUiOiJjdXN0b21lciIsInVzZXJfaWQiOiI1NDgzNDQzNzI4MjgwNDUzMTUifQ.0fLNLTXPGeOcPD4bp7W2j6SGSjki6Txctx7vozTXSm0
+
+{
+  "name": "Property 1",
+  "description": "Description of property 1",
+  "address": "123 Main St",
+  "contact_email": "property1@email.com",
+  "contact_phone": "123-456-7890"
+}
 
