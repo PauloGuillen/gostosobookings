@@ -146,53 +146,43 @@ func (s *AuthService) GetTokenDetails(ctx context.Context, tokenString string) (
 	return tokenDetails, nil
 }
 
-// ValidateToken validates a JWT token.
-func (s *AuthService) ValidateToken(ctx context.Context, tokenString string) error {
-	_, err := s.GetTokenDetails(ctx, tokenString)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // RevalidateToken revalidates a JWT token by issuing a new access token if the refresh token is valid.
-func (s *AuthService) RevalidateToken(ctx context.Context, tokenString string) (string, error) {
+func (s *AuthService) RevalidateToken(ctx context.Context, tokenString string) (string, dto.AccessTokenDetails, error) {
 	// Parse the token without validating expiration.
 	parsedToken, _, err := jwt.NewParser().ParseUnverified(tokenString, jwt.MapClaims{})
 	if err != nil {
-		return "", errors.ErrTokenParsing
+		return "", dto.AccessTokenDetails{}, errors.ErrTokenParsing
 	}
 
 	// Extract claims from the token.
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", errors.ErrInvalidTokenClaims
+		return "", dto.AccessTokenDetails{}, errors.ErrInvalidTokenClaims
 	}
 
 	// Extract and validate user_id from claims.
 	userID, ok := claims["user_id"].(string)
 	if !ok {
-		return "", errors.ErrInvalidTokenClaims
+		return "", dto.AccessTokenDetails{}, errors.ErrInvalidTokenClaims
 	}
 	userIDInt, err := strconv.ParseInt(userID, 10, 64)
 	if err != nil {
-		return "", errors.ErrInvalidTokenClaims
+		return "", dto.AccessTokenDetails{}, errors.ErrInvalidTokenClaims
 	}
 
 	// Extract and validate role from claims.
 	role, ok := claims["role"].(string)
 	if !ok || !auth.IsValidRole(role) {
-		return "", errors.ErrInvalidTokenClaims
+		return "", dto.AccessTokenDetails{}, errors.ErrInvalidTokenClaims
 	}
 
 	// Check the refresh token's validity from the repository.
-	tokenDetail, err := s.repo.FindRefreshToken(ctx, userIDInt)
+	refreshToken, err := s.repo.FindRefreshToken(ctx, userIDInt)
 	if err != nil {
-		return "", err
+		return "", dto.AccessTokenDetails{}, err
 	}
-	if time.Now().Unix() > tokenDetail.ExpiresAt {
-		return "", errors.ErrTokenExpired
+	if time.Now().Unix() > refreshToken.ExpiresAt {
+		return "", dto.AccessTokenDetails{}, errors.ErrTokenExpired
 	}
 
 	// Generate a new access token with updated expiration.
@@ -204,8 +194,14 @@ func (s *AuthService) RevalidateToken(ctx context.Context, tokenString string) (
 	})
 	newTokenString, err := newToken.SignedString([]byte(s.jwtSecretKey))
 	if err != nil {
-		return "", errors.ErrTokenGeneration
+		return "", dto.AccessTokenDetails{}, errors.ErrTokenGeneration
 	}
 
-	return newTokenString, nil
+	tokenDetail := dto.AccessTokenDetails{
+		UserID:    userIDInt,
+		Role:      role,
+		ExpiresAt: expirationTime,
+	}
+
+	return newTokenString, tokenDetail, nil
 }

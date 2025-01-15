@@ -10,6 +10,7 @@ import (
 )
 
 // AuthMiddleware ensures that the user is authenticated via a valid JWT token.
+// It validates the token, revalidates it if expired, and sets user details in the context for further use.
 func AuthMiddleware(authService service.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract the token from the Authorization header
@@ -23,7 +24,7 @@ func AuthMiddleware(authService service.AuthService) gin.HandlerFunc {
 		// Check the "Bearer " prefix and split the token
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format. Expected 'Bearer <token>'"})
 			c.Abort()
 			return
 		}
@@ -31,7 +32,7 @@ func AuthMiddleware(authService service.AuthService) gin.HandlerFunc {
 		token := parts[1]
 
 		// Validate the token
-		err := authService.ValidateToken(c.Request.Context(), token)
+		tokenDetail, err := authService.GetTokenDetails(c.Request.Context(), token)
 		if err != nil {
 			if err != errors.ErrTokenExpired {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: invalid token"})
@@ -40,9 +41,10 @@ func AuthMiddleware(authService service.AuthService) gin.HandlerFunc {
 			}
 
 			// Attempt to revalidate the expired token
-			newToken, revalidateErr := authService.RevalidateToken(c.Request.Context(), token)
-			if revalidateErr != nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: expired token"})
+			var newToken string
+			newToken, tokenDetail, err = authService.RevalidateToken(c.Request.Context(), token)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: token expired and could not be revalidated"})
 				c.Abort()
 				return
 			}
@@ -50,6 +52,10 @@ func AuthMiddleware(authService service.AuthService) gin.HandlerFunc {
 			// Set the new token in the Authorization header
 			c.Header("Authorization", "Bearer "+newToken)
 		}
+
+		// Set the token details in the context for use in subsequent handlers
+		c.Set("user_id", tokenDetail.UserID)
+		c.Set("role", tokenDetail.Role)
 
 		// Proceed to the next middleware or handler
 		c.Next()

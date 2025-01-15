@@ -20,10 +20,24 @@ CREATE TABLE refresh_tokens (
 );
 CREATE INDEX idx_user_id ON refresh_tokens (user_id);
 
-CREATE TABLE user_businesses (
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,  -- Referência ao usuário
-    business_id BIGINT REFERENCES businesses(id) ON DELETE CASCADE,  -- Referência ao empreendimento
-    role VARCHAR(50) DEFAULT 'admin',  -- Papel do usuário: 'admin' (administrador) ou outro (por exemplo, 'manager')
-    PRIMARY KEY (user_id, business_id)  -- Chave composta, garantindo que o usuário só possa ser associado a um único empreendimento por vez
+
+-- Table for storing properties
+CREATE TABLE properties (
+    id BIGINT PRIMARY KEY,                          -- Sonyflake ID (generated as BIGINT)
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address VARCHAR(255),
+    contact_email VARCHAR(100),
+    contact_phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for mapping users to properties
+CREATE TABLE user_properties (
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    property_id BIGINT REFERENCES properties(id) ON DELETE CASCADE,
+    role VARCHAR(50) DEFAULT 'admin',
+    PRIMARY KEY (user_id, property_id)
 );
 

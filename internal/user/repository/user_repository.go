@@ -20,7 +20,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*model.User, error)
 	CreateRefreshToken(ctx context.Context, userID int64, expiresAt int64) error
 	DeleteRefreshToken(ctx context.Context, userID int64) error
-	FindRefreshToken(ctx context.Context, userID int64) (dto.AccessTokenDetails, error)
+	FindRefreshToken(ctx context.Context, userID int64) (dto.RefreshToken, error)
 }
 
 // userRepository is the concrete implementation of UserRepository.
@@ -93,16 +93,16 @@ func (r *userRepository) DeleteRefreshToken(ctx context.Context, userID int64) e
 }
 
 // FindRefreshToken retrieves the refresh token for the user.
-func (r *userRepository) FindRefreshToken(ctx context.Context, userID int64) (dto.AccessTokenDetails, error) {
+func (r *userRepository) FindRefreshToken(ctx context.Context, userID int64) (dto.RefreshToken, error) {
 	sql := `SELECT user_id, expires_at FROM refresh_tokens WHERE user_id = $1`
-	tokenDetails := dto.AccessTokenDetails{}
-	err := config.DB.QueryRow(ctx, sql, userID).Scan(&tokenDetails.UserID, &tokenDetails.ExpiresAt)
+	refreshToken := dto.RefreshToken{}
+	err := config.DB.QueryRow(ctx, sql, userID).Scan(&refreshToken.UserID, &refreshToken.ExpiresAt)
 	if err != nil {
 		if stdErrors.Is(err, stdSql.ErrNoRows) {
-			return dto.AccessTokenDetails{}, errors.ErrTokenNotFound
+			return dto.RefreshToken{}, errors.ErrTokenNotFound
 		}
-		return dto.AccessTokenDetails{}, errors.ErrDatabase
+		return dto.RefreshToken{}, errors.ErrDatabase
 	}
 
-	return tokenDetails, nil
+	return refreshToken, nil
 }

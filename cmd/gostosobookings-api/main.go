@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/PauloGuillen/gostosobookings/config"
+	propertyService "github.com/PauloGuillen/gostosobookings/internal/property/service"
 	"github.com/PauloGuillen/gostosobookings/internal/user/repository"
-	"github.com/PauloGuillen/gostosobookings/internal/user/service"
+	userService "github.com/PauloGuillen/gostosobookings/internal/user/service"
 	"github.com/PauloGuillen/gostosobookings/pkg/router"
 )
 
@@ -42,13 +43,17 @@ func initializeApp() error {
 func startServer() {
 	// Initialize the User repository and service
 	userRepository := repository.NewUserRepository()
-	userService := service.NewUserService(userRepository)
+	usrService := userService.NewUserService(userRepository)
 
 	// Initialize the Auth service
-	authService := service.NewAuthService(userRepository)
+	authService := userService.NewAuthService(userRepository)
+
+	// Initialize the Property repository and service
+	// propertyRepository := repository.NewPropertyRepository()
+	propService := propertyService.NewPropertyService()
 
 	// Set up the router with userService and authService
-	r := router.SetupRouter(*userService, *authService)
+	r := router.SetupRouter(*usrService, *authService, *propService)
 
 	// Retrieve and log the server port
 	port := config.GetEnv("SERVER_PORT", "8080")
